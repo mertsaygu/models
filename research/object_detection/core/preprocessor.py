@@ -4399,7 +4399,67 @@ def random_scale_crop_and_pad_to_square(
 
   return return_values
 
+def random_imgaug(image,
+                  boxes= None,
+                  labels= None,
+                  random_coef= 0.0,
+                  seed=None,
+                  preprocess_vars_cache=None):
+  '''
+  Allows you to use Imgaug package with tensorflow
 
+  Args:
+  image: float32 tensor with rank 3
+  boxes: float32 tensor with rank 2
+  labels: float32 tensor with rank 1
+  random_coef: Random coefficiency of getting the original image
+  seed: Random seed
+  preprocess_vars_cache: records previously performed augmentation
+  '''
+
+  def _adjust_imgaug():
+    result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes,labels], Tout = tf.float32)
+
+    def reshape_func(result, image, type):
+      type_np = type.numpy()
+      height, width, channel = image.shape
+
+      if type_np == b"image":
+        cut_image = result[:height*width*channel]
+        shaped = tf.reshape(cut_image, image.shape)
+      
+      else:
+        cut_other=result[height*width*channel:]
+        t = cut_other.shape[0]//5
+        if type_np == b'boxes':
+          boxes = cut_other[:t*4]
+          shaped = tf.reshape(boxes,(t,4))
+        if type_np == b'labels':
+          labels = cut_other[t*4:]
+          shaped = labels
+      
+      return shaped
+    
+    adjusted_image = tf.py_function(func = reshape_func, inp = [result, image, "image"], Tout = tf.float32)
+    adjusted_boxes = tf.py_function(func = reshape_func, inp = [result, image, "boxes"], Tout = tf.float32)
+    adjusted_labels = tf.py_function(func = reshape_func, inp = [result, image, "labels"], Tout = tf.float32)
+
+    adjusted_image.set_shape(image.shape)
+    adjusted_boxes.set_shape(boxes.shape)
+    adjusted_labels.set_shape(labels.shape)
+
+    return (tf.cast(adjusted_image, tf.float32), tf.cast(adjusted_boxes, tf.float32), tf.cast(adjusted_labels, tf.float32))
+  
+  with tf.name_scope("RandomImgAug",values = [image, boxes, labels]):
+    generator_func = functools.partial(tf.random_uniform, [], seed = seed)
+    do_encoding_random = _get_or_create_preprocess_rand_vars(
+                generator_func, 
+                preprocessor_cache.PreprocessorCache.IMGAUG,
+                preprocess_vars_cache
+    )
+    do_encoding_random = tf.greater_equal(do_encoding_random, random_coef)
+    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (image, boxes, labels))
+    return image_and_boxes
 
 
 def get_default_func_arg_map(include_label_weights=True,
@@ -4662,6 +4722,9 @@ def get_default_func_arg_map(include_label_weights=True,
            groundtruth_label_weights, groundtruth_instance_masks,
            groundtruth_keypoints, groundtruth_label_confidences),
       adjust_gamma: (fields.InputDataFields.image,),
+      random_imgaug: (fields.InputDataFields.image,
+                      fields.InputDataFields.groundtruth_boxes,
+                      fields.InputDataFields.groundtruth_classes),
   }
 
   return prep_func_arg_map

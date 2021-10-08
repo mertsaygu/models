@@ -109,6 +109,8 @@ PREPROCESSING_FUNCTION_MAP = {
         preprocessor.convert_class_logits_to_softmax,
     'adjust_gamma':
         preprocessor.adjust_gamma,
+    'random_imgaug':
+        preprocessor.random_imgaug,
 }
 
 
@@ -440,4 +442,11 @@ def build(preprocessor_step_config):
     config = preprocessor_step_config.random_jitter_boxes
     kwargs = get_random_jitter_kwargs(config)
     return preprocessor.random_jitter_boxes, kwargs
+
+  if step_type == "random_imgaug":
+    config = preprocessor_step_config.random_imgaug
+    return preprocessor.random_imgaug, {
+      'random_coef': config.random_coef,
+    }
+    
   raise ValueError('Unknown preprocessing step.')
