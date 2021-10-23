@@ -47,7 +47,7 @@ message PreprocessingStep {
     RandomSquareCropByScale random_square_crop_by_scale = 37;
     RandomScaleCropAndPadToSquare random_scale_crop_and_pad_to_square = 38;
     AdjustGamma adjust_gamma = 39;
-    RandomImgAug = 40;
+    RandomImgAug random_imgaug = 40;
   }
 }
 
@@ -627,5 +627,5 @@ message AdjustGamma {
 //Random Image Augmentation package. Specify random coefficiency.
 
 message RandomImgAug {
-  optional float random_coef = 1 [default = 0.0]
+  optional float random_coef = 1 [default = 0.0];
 }
