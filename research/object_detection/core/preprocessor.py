@@ -4403,7 +4403,7 @@ def random_scale_crop_and_pad_to_square(
 def random_imgaug(image,
                   boxes= None,
                   labels= None,
-                  random_coef= 0.0,
+                  random_coef= 0.1,
                   seed=None,
                   preprocess_vars_cache=None):
   '''
@@ -4418,7 +4418,7 @@ def random_imgaug(image,
   preprocess_vars_cache: records previously performed augmentation
   '''
 
-  def _adjust_imgaug():
+  def _adjust_imgaug(image, boxes, labels):
     result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes,labels], Tout = tf.float32)
 
     def reshape_func(result, image, type):
@@ -4458,8 +4458,9 @@ def random_imgaug(image,
                 preprocessor_cache.PreprocessorCache.IMGAUG,
                 preprocess_vars_cache
     )
-    do_encoding_random = tf.greater_equal(do_encoding_random, random_coef)
-    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (image,boxes,labels))
+    image_and_boxes = tf.cond(tf.greater_equal(do_encoding_random, random_coef),
+                                    lambda: _adjust_imgaug(image, boxes, labels), 
+                                    lambda: (image,boxes,labels))   # (do_encoding_random:  boolean, if 1 -> _adjust_image, if 0 -> return same values)
     return image_and_boxes
 
 
