@@ -37,5 +37,6 @@ def augment(image, boxes, labels):
     boxes_aug = np.array(boxes_aug)
     labels_aug = np.array(labels_aug)
     
-    merge = np.concatenate((image_aug, boxes_aug, labels_aug), axis=None)
-    return merge
+    # merge = np.concatenate((image_aug, boxes_aug, labels_aug), axis=None)
+    # return merge
+    return (image_aug, boxes_aug, labels_aug)
