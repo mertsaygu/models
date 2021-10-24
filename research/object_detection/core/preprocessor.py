@@ -88,6 +88,7 @@ from object_detection.utils import autoaugment_utils
 from object_detection.utils import ops
 from object_detection.utils import patch_ops
 from object_detection.utils import shape_utils
+from object_detection.core import imgaug_utils
 
 
 def _apply_with_random_selector(x,
@@ -4458,7 +4459,7 @@ def random_imgaug(image,
                 preprocess_vars_cache
     )
     do_encoding_random = tf.greater_equal(do_encoding_random, random_coef)
-    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (image, boxes, labels))
+    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (tf.cast(image, tf.float32), tf.cast(boxes, tf.float32), tf.cast(labels, tf.float32)))
     return image_and_boxes
 
 
