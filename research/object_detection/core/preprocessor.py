@@ -4459,7 +4459,7 @@ def random_imgaug(image,
                 preprocess_vars_cache
     )
     do_encoding_random = tf.greater_equal(do_encoding_random, random_coef)
-    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (tf.cast(image, tf.float32), tf.cast(boxes, tf.float32), tf.cast(labels, tf.float32)))
+    image_and_boxes = tf.cond(do_encoding_random, _adjust_imgaug, lambda: (image,boxes,labels))
     return image_and_boxes
 
 
