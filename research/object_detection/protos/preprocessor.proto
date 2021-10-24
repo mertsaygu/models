@@ -627,5 +627,5 @@ message AdjustGamma {
 //Random Image Augmentation package. Specify random coefficiency.
 
 message RandomImgAug {
-  optional float random_coef = 1 [default = 0.0];
+  optional float random_coef = 1 [default = 0.1];
 }
