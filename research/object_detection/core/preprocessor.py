@@ -4418,28 +4418,28 @@ def random_imgaug(image,
       preprocess_vars_cache: records previously performed augmentation
   '''
 
-  def _adjust_imgaug(image, boxes, labels):
-    result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes,labels], Tout = tf.float32)
+  def _adjust_imgaug(image, boxes):
+    result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes], Tout = tf.float32)
 
-    def reshape_func(result, image, type):
-      type_np = type.numpy()
-      height, width, channel = image.shape
+    # def reshape_func(result, image, type):
+    #   type_np = type.numpy()
+    #   height, width, channel = image.shape
 
-      if type_np == b"image":
-        cut_image = result[:height*width*channel]
-        shaped = tf.reshape(cut_image, image.shape)
+    #   if type_np == b"image":
+    #     cut_image = result[:height*width*channel]
+    #     shaped = tf.reshape(cut_image, image.shape)
       
-      else:
-        cut_other=result[height*width*channel:]
-        t = cut_other.shape[0]//5
-        if type_np == b'boxes':
-          boxes = cut_other[:t*4]
-          shaped = tf.reshape(boxes,(t,4))
-        if type_np == b'labels':
-          labels = cut_other[t*4:]
-          shaped = labels
+    #   else:
+    #     cut_other=result[height*width*channel:]
+    #     t = cut_other.shape[0]//5
+    #     if type_np == b'boxes':
+    #       boxes = cut_other[:t*4]
+    #       shaped = tf.reshape(boxes,(t,4))
+    #     if type_np == b'labels':
+    #       labels = cut_other[t*4:]
+    #       shaped = labels
       
-      return shaped
+    #   return shaped
     
     # adjusted_image = tf.py_function(func = reshape_func, inp = [result, image, "image"], Tout = tf.float32)
     # adjusted_boxes = tf.py_function(func = reshape_func, inp = [result, image, "boxes"], Tout = tf.float32)
@@ -4449,8 +4449,8 @@ def random_imgaug(image,
     # adjusted_boxes.set_shape(boxes.shape)
     # adjusted_labels.set_shape(labels.shape)
 
-    adjusted_image, adjusted_boxes, adjusted_labels = result
-    return (tf.cast(adjusted_image, tf.float32), tf.cast(adjusted_boxes, tf.float32), tf.cast(adjusted_labels, tf.float32))
+    adjusted_image, adjusted_boxes = result
+    return (tf.cast(adjusted_image, tf.float32), tf.cast(adjusted_boxes, tf.float32))
   
   with tf.name_scope("RandomImgAug",values = [image, boxes, labels]):
     generator_func = functools.partial(tf.random_uniform, [], seed = seed)
@@ -4460,8 +4460,8 @@ def random_imgaug(image,
                 preprocess_vars_cache
     )
     image_and_boxes = tf.cond(tf.greater(do_encoding_random, random_coef),
-                                    lambda: _adjust_imgaug(image, boxes, labels), 
-                                    lambda: (image,boxes,labels))   # (do_encoding_random:  boolean, if 1 -> _adjust_image, if 0 -> return same values)
+                                    lambda: _adjust_imgaug(image, boxes), 
+                                    lambda: (image,boxes))   # (do_encoding_random:  boolean, if 1 -> _adjust_image, if 0 -> return same values)
     return image_and_boxes
 
 
