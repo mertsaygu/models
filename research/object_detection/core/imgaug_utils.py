@@ -3,7 +3,7 @@ from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 from tensorflow.python.framework.ops import EagerTensor
 import tensorflow as tf
 import numpy as np
-# test
+
 augseq = iaa.Sequential([
     iaa.Crop(px=(0, 16)), # crop images from each side by 0 to 16px (randomly chosen)
     iaa.Fliplr(0.5), # horizontally flip 50% of the images
@@ -33,4 +33,4 @@ def augment(image, boxes):
     
     # merge = np.concatenate((image_aug, boxes_aug, labels_aug), axis=None)
     # return merge
-    return (image_aug, boxes_aug)
+    return (tf.cast(image_aug, tf.float32), tf.cast(boxes_aug, tf.float32))
