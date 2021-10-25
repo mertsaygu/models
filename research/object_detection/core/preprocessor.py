@@ -4419,7 +4419,8 @@ def random_imgaug(image,
   '''
 
   def _adjust_imgaug(image, boxes):
-    result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes], Tout = tf.float32)
+    # result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes], Tout = tf.float32)
+    result = tf.cast(imgaug_utils.augment(image,boxes), tf.float32)
 
     def reshape_func(result, image, type):
       type_np = type.numpy()
@@ -4436,8 +4437,11 @@ def random_imgaug(image,
         
       return shaped
     
-    adjusted_image = tf.py_function(func = reshape_func, inp = [result, image, "image"], Tout = tf.float32)
-    adjusted_boxes = tf.py_function(func = reshape_func, inp = [result, image, "boxes"], Tout = tf.float32)
+    # adjusted_image = tf.py_function(func = reshape_func, inp = [result, image, "image"], Tout = tf.float32)
+    # adjusted_boxes = tf.py_function(func = reshape_func, inp = [result, image, "boxes"], Tout = tf.float32)
+
+    adjusted_image = tf.cast(reshape_func(result,image, "image"),tf.float32)
+    adjusted_boxes = tf.cast(reshape_func(result, image, "boxes"), tf.float32)
 
     adjusted_image.set_shape(image.shape)
     adjusted_boxes.set_shape(boxes.shape)
