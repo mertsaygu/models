@@ -11,6 +11,7 @@ augseq = iaa.Sequential([
 ], random_order=True)
 # """ <- Comment Guide
 
+@tf.function
 def augment(image, boxes):
     image_np = image.numpy().astype(np.uint8) if type(image) == EagerTensor else image
     boxes_np = boxes.numpy() if type(boxes) == EagerTensor else boxes
