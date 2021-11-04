@@ -4419,31 +4419,32 @@ def random_imgaug(image,
 
   def _adjust_imgaug(image, boxes):
     # result = tf.py_function(func=imgaug_utils.augment, inp=[image,boxes], Tout = tf.float32)
-    result = tf.cast(imgaug_utils.augment(image,boxes), tf.float32)
+    adjusted_image, adjusted_boxes = tf.cast(imgaug_utils.augment(image,boxes), tf.float32)
 
-    def reshape_func(result, image, type):
-      type_np = type.numpy()
-      height, width, channel = image.shape
+    # def reshape_func(result, image, type):
+    #   type_np = type.numpy()
+    #   height, width, channel = image.shape
 
-      if type_np == b"image":
-        cut_image = result[:height*width*channel]
-        shaped = tf.reshape(cut_image, image.shape)
+    #   if type_np == b"image":
+    #     cut_image = result[:height*width*channel]
+    #     shaped = tf.reshape(cut_image, image.shape)
       
-      else:
-        boxes=result[height*width*channel:]
-        t = boxes.shape[0]//4
-        shaped = tf.reshape(boxes,(t,4))
+    #   else:
+    #     boxes=result[height*width*channel:]
+    #     t = boxes.shape[0]//4
+    #     shaped = tf.reshape(boxes,(t,4))
         
-      return shaped
+    #   return shaped
     
     # adjusted_image = tf.py_function(func = reshape_func, inp = [result, image, "image"], Tout = tf.float32)
     # adjusted_boxes = tf.py_function(func = reshape_func, inp = [result, image, "boxes"], Tout = tf.float32)
 
-    adjusted_image = tf.cast(reshape_func(result,image, "image"),tf.float32)
-    adjusted_boxes = tf.cast(reshape_func(result, image, "boxes"), tf.float32)
+    adjusted_image = tf.cast(adjusted_image, tf.float32)
+    # adjusted_boxes = tf.cast(reshape_func(result, image, "boxes"), tf.float32)
+    # adjusted_boxes = reshape_func(result,image,"boxes")
 
-    adjusted_image.set_shape(image.shape)
-    adjusted_boxes.set_shape(boxes.shape)
+    # adjusted_image.set_shape(image.shape)
+    # adjusted_boxes.set_shape(boxes.shape)
 
     return tuple(adjusted_image, adjusted_boxes)
   

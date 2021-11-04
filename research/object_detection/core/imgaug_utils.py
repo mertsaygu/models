@@ -33,5 +33,5 @@ def augment(image, boxes):
     boxes_aug = np.array(boxes_aug)
     
     merge = np.concatenate((image_aug, boxes_aug), axis=None)
-    return merge
-    # return (tf.cast(image_aug, tf.float32), tf.cast(boxes_aug, tf.float32))
+    # return merge
+    return image_aug, boxes_aug
