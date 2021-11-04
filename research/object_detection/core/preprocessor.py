@@ -4412,7 +4412,6 @@ def random_imgaug(image,
   Args:
       image: float32 tensor with rank 3
       boxes: float32 tensor with rank 2
-      labels: float32 tensor with rank 1
       random_coef: Random coefficiency of getting the original image
       seed: Random seed
       preprocess_vars_cache: records previously performed augmentation
@@ -4446,7 +4445,7 @@ def random_imgaug(image,
     adjusted_image.set_shape(image.shape)
     adjusted_boxes.set_shape(boxes.shape)
 
-    return (tf.cast(adjusted_image, tf.float32), tf.cast(adjusted_boxes, tf.float32))
+    return tuple(adjusted_image, adjusted_boxes)
   
   with tf.name_scope("RandomImgAug",values = [image, boxes, labels]):
     generator_func = functools.partial(tf.random_uniform, [], seed = seed)
