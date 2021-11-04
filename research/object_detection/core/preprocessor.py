@@ -4448,7 +4448,7 @@ def random_imgaug(image,
 
     return tuple(adjusted_image, adjusted_boxes)
   
-  with tf.name_scope("RandomImgAug",values = [image, boxes, labels]):
+  with tf.name_scope("RandomImgAug",values = [image, boxes]):
     generator_func = functools.partial(tf.random_uniform, [], seed = seed)
     do_encoding_random = _get_or_create_preprocess_rand_vars(
                 generator_func, 
