@@ -19,7 +19,8 @@ def augment(image, boxes):
     bbs = []
     for i in range(len(boxes_np)):
         box = boxes_np[i]
-        ymin, xmin, ymax, xmax = box
+        # ymin, xmin, ymax, xmax = tf.unstack(box) #Cast tensor to numpy!
+        ymin, xmin, ymax, xmax = box.numpy()
         bbs.append(BoundingBox(
             x1=xmin*width, y1=ymin*height,
             x2=xmax*width, y2=ymax*height,))
